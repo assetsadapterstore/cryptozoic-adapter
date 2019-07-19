@@ -56,12 +56,13 @@ func (sub *subscriberSingle) BlockExtractDataNotify(sourceKey string, data *open
 func TestSubscribeAddress_VCC(t *testing.T) {
 
 	var (
+		//tm = testInitWalletManager()
 		endRunning = make(chan bool, 1)
 		symbol     = "VCC"
 		//accountID  = "HgRBsaiKgoVDagwezos496vqKQCh41pY44JbhW65YA8t"
 		addrs      = map[string]string{
-			"0x0000000000000000000000000000000000000000": "sender",
-			"0x8673ec275229dc236af3061ea00d1c0f4a96b89d": "receiver",
+			"0x4f18f668a979a323b985167110ef14aa94507c5a": "sender",
+			"0x38184fda9071fdc47eb971d79a44939b03a8d8b8": "receiver",
 		}
 	)
 
@@ -96,7 +97,7 @@ func TestSubscribeAddress_VCC(t *testing.T) {
 
 	//log.Debug("already got scanner:", assetsMgr)
 	scanner := assetsMgr.GetBlockScanner()
-	//scanner.SetRescanBlockHeight(6518561)
+	scanner.SetRescanBlockHeight(130900)
 
 	if scanner == nil {
 		log.Error(symbol, "is not support block scan")
@@ -107,6 +108,9 @@ func TestSubscribeAddress_VCC(t *testing.T) {
 
 	sub := subscriberSingle{}
 	scanner.AddObserver(&sub)
+
+	wrapper := &walletWrapper{wm:testInitWalletManager()}
+	scanner.SetBlockScanWalletDAI(wrapper)
 
 	scanner.Run()
 

@@ -1,16 +1,11 @@
 package openwtester
 
 import (
+	"fmt"
 	"github.com/blocktree/openwallet/log"
 	"github.com/blocktree/openwallet/openw"
 	"github.com/blocktree/openwallet/openwallet"
-	"path/filepath"
 	"testing"
-)
-
-var (
-	testApp        = "cryptozoic-adapter"
-	configFilePath = filepath.Join("conf")
 )
 
 func testInitWalletManager() *openw.WalletManager {
@@ -74,7 +69,7 @@ func TestWalletManager_CreateAssetsAccount(t *testing.T) {
 	tm := testInitWalletManager()
 
 	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
-	account := &openwallet.AssetsAccount{Alias: "mainnetVCC", WalletID: walletID, Required: 1, Symbol: "VCC", IsTrust: true}
+	account := &openwallet.AssetsAccount{Alias: "sumVCC", WalletID: walletID, Required: 1, Symbol: "VCC", IsTrust: true}
 	account, address, err := tm.CreateAssetsAccount(testApp, walletID, "12345678", account, nil)
 	if err != nil {
 		log.Error(err)
@@ -111,14 +106,16 @@ func TestWalletManager_CreateAddress(t *testing.T) {
 	tm := testInitWalletManager()
 
 	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
-	accountID := "GDNwcyvgzs6KmTjN9okRYuysgpVmD71nDU41ogK3sbqn"
+	accountID := "Ak9tGB33hyWyyvmUKZqLVku8b4rXSTF2biXdojxoMsUp"
 	address, err := tm.CreateAddress(testApp, walletID, accountID, 5)
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	log.Info("address:", address)
+	for _, w := range address {
+		fmt.Printf("%s\n", w.Address)
+	}
 
 	tm.CloseDB(testApp)
 }

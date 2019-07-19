@@ -31,6 +31,7 @@ type WalletManager struct {
 func NewWalletManager() *WalletManager {
 	wm := WalletManager{}
 	wm.WalletManager = ethereum.NewWalletManager()
+	wm.Blockscanner = NewVCCBlockScanner(&wm)
 	wm.Config = ethereum.NewConfig(Symbol)
 	wm.Log = log.NewOWLogger(wm.Symbol())
 	return &wm

@@ -117,36 +117,46 @@ func testSubmitTransactionStep(tm *openw.WalletManager, rawTx *openwallet.RawTra
 	return rawTx, nil
 }
 
-func TestTransfer_ETH(t *testing.T) {
+func TestTransfer_VCC(t *testing.T) {
+
+	addrs := []string{
+		"0x149809151ac56c0021342660f5eb1ba24e26b8d7",
+		"0x3fe92dbf0a07db89432fba7ad3424d1ab81f49ac",
+		"0x3000ddd3f48fb839173c4be4582c4710ff9fc781",
+		"0xf1a792e917f795faceb4c42b91418e818381a647",
+		"0xa0791fd0fe158a63e484f7dfad06234e48b47b56",
+		"0x38184fda9071fdc47eb971d79a44939b03a8d8b8",
+	}
+
 	tm := testInitWalletManager()
-	walletID := "WHQF3H2Hqa2Pksp8vWmBDZpS7piEGVivRp"
-	accountID := "HgRBsaiKgoVDagwezos496vqKQCh41pY44JbhW65YA8t"
-	to := "0xd35f9Ea14D063af9B3567064FAB567275b09f03D"
+	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
+	accountID := "GDNwcyvgzs6KmTjN9okRYuysgpVmD71nDU41ogK3sbqn"
 
 	testGetAssetsAccountBalance(tm, walletID, accountID)
 
-	rawTx, err := testCreateTransactionStep(tm, walletID, accountID, to, "0.001", "", nil)
-	if err != nil {
-		return
+	for _, to := range addrs {
+		rawTx, err := testCreateTransactionStep(tm, walletID, accountID, to, "1.234567", "", nil)
+		if err != nil {
+			return
+		}
+
+		log.Std.Info("rawTx: %+v", rawTx)
+
+		_, err = testSignTransactionStep(tm, rawTx)
+		if err != nil {
+			return
+		}
+
+		_, err = testVerifyTransactionStep(tm, rawTx)
+		if err != nil {
+			return
+		}
+
+		_, err = testSubmitTransactionStep(tm, rawTx)
+		if err != nil {
+			return
+		}
 	}
-
-	log.Std.Info("rawTx: %+v", rawTx)
-
-	_, err = testSignTransactionStep(tm, rawTx)
-	if err != nil {
-		return
-	}
-
-	_, err = testVerifyTransactionStep(tm, rawTx)
-	if err != nil {
-		return
-	}
-
-	_, err = testSubmitTransactionStep(tm, rawTx)
-	if err != nil {
-		return
-	}
-
 }
 
 func TestTransfer_ERC20(t *testing.T) {
@@ -189,11 +199,11 @@ func TestTransfer_ERC20(t *testing.T) {
 
 }
 
-func TestSummary_ETH(t *testing.T) {
+func TestSummary_VCC(t *testing.T) {
 	tm := testInitWalletManager()
-	walletID := "WHQF3H2Hqa2Pksp8vWmBDZpS7piEGVivRp"
-	accountID := "HgRBsaiKgoVDagwezos496vqKQCh41pY44JbhW65YA8t"
-	summaryAddress := "0xd35f9Ea14D063af9B3567064FAB567275b09f03D"
+	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
+	accountID := "Ak9tGB33hyWyyvmUKZqLVku8b4rXSTF2biXdojxoMsUp"
+	summaryAddress := "0x4f18f668a979a323b985167110ef14aa94507c5a"
 
 	testGetAssetsAccountBalance(tm, walletID, accountID)
 

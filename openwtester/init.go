@@ -4,6 +4,12 @@ import (
 	"github.com/assetsadapterstore/cryptozoic-adapter/cryptozoic"
 	"github.com/blocktree/openwallet/log"
 	"github.com/blocktree/openwallet/openw"
+	"path/filepath"
+)
+
+var (
+	testApp        = "cryptozoic-adapter"
+	configFilePath = filepath.Join("conf")
 )
 
 func init() {

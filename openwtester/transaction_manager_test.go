@@ -105,8 +105,8 @@ func TestWalletManager_GetTransactionByWxID(t *testing.T) {
 
 func TestWalletManager_GetAssetsAccountBalance(t *testing.T) {
 	tm := testInitWalletManager()
-	walletID := "W2WoU9mK66LA2xVkK2XK6v8tFx5bjY3MLX"
-	accountID := "3acWfDKFtfF6hC1HfQE8mq6VejRgjLZpDuo9eK1ViZBk"
+	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
+	accountID := "GDNwcyvgzs6KmTjN9okRYuysgpVmD71nDU41ogK3sbqn"
 
 	balance, err := tm.GetAssetsAccountBalance(testApp, walletID, accountID)
 	if err != nil {
@@ -118,8 +118,8 @@ func TestWalletManager_GetAssetsAccountBalance(t *testing.T) {
 
 func TestWalletManager_GetAssetsAccountTokenBalance(t *testing.T) {
 	tm := testInitWalletManager()
-	walletID := "WCBkGX2YgKuZndqhZxEnuJMWm9w95UcMNx"
-	accountID := "CowQhDKmxb6Jaotkb4V3oqQSb2SCgcGy8819GpGVFLP8"
+	walletID := "WDhSY6Ax5FpuBrpjzSN6EBE1oVi67mz1rA"
+	accountID := "GDNwcyvgzs6KmTjN9okRYuysgpVmD71nDU41ogK3sbqn"
 
 	contract := openwallet.SmartContract{
 		Address:  "0x1cC3150ABc543b62A20694DC16c9E614855A2C40",
