@@ -941,16 +941,18 @@ func (this *VCCBlockScanner) TransactionScanning(tx *ethereum.BlockTransaction) 
 		Success:     true,
 	}
 
-	//VCC的from地址匿名需要查钱包系统的数据库中的交易单
-	txsDB, _ := this.WalletDAI.GetTransactionByTxID(tx.Hash, this.wm.Symbol())
+	if this.WalletDAI != nil {
+		//VCC的from地址匿名需要查钱包系统的数据库中的交易单
+		txsDB, _ := this.WalletDAI.GetTransactionByTxID(tx.Hash, this.wm.Symbol())
 
-	if txsDB != nil {
-		for _, txDB := range txsDB {
-			for _, f := range txDB.From {
-				fv := strings.Split(f, ":")
-				if len(fv) == 2 {
-					tx.From = fv[0]
-					break
+		if txsDB != nil {
+			for _, txDB := range txsDB {
+				for _, f := range txDB.From {
+					fv := strings.Split(f, ":")
+					if len(fv) == 2 {
+						tx.From = fv[0]
+						break
+					}
 				}
 			}
 		}
