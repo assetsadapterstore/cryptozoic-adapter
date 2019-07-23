@@ -97,7 +97,7 @@ func TestSubscribeAddress_VCC(t *testing.T) {
 
 	//log.Debug("already got scanner:", assetsMgr)
 	scanner := assetsMgr.GetBlockScanner()
-	scanner.SetRescanBlockHeight(130900)
+	scanner.SetRescanBlockHeight(130944)
 
 	if scanner == nil {
 		log.Error(symbol, "is not support block scan")
