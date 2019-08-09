@@ -126,7 +126,9 @@ func TestTransfer_VCC(t *testing.T) {
 		//"0xf1a792e917f795faceb4c42b91418e818381a647",
 		//"0xa0791fd0fe158a63e484f7dfad06234e48b47b56",
 		//"0x38184fda9071fdc47eb971d79a44939b03a8d8b8",
-		"0x14b6490d230ba60751adc1ab8773fad7fd273d49",
+		//"0x14b6490d230ba60751adc1ab8773fad7fd273d49",
+
+		"0x7bbc04f00756484ed868c10c8a4784293e8976bf",
 	}
 
 	tm := testInitWalletManager()
@@ -136,7 +138,7 @@ func TestTransfer_VCC(t *testing.T) {
 	testGetAssetsAccountBalance(tm, walletID, accountID)
 
 	for _, to := range addrs {
-		rawTx, err := testCreateTransactionStep(tm, walletID, accountID, to, "5", "", nil)
+		rawTx, err := testCreateTransactionStep(tm, walletID, accountID, to, "0.1", "", nil)
 		if err != nil {
 			return
 		}
