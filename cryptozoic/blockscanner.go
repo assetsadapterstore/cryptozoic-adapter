@@ -97,7 +97,7 @@ func (this *VCCBlockScanner) SetRescanBlockHeight(height uint64) error {
 		return err
 	}
 
-	err = this.wm.SaveLocalBlockScanned(height, block.BlockHash)
+	err = this.SaveLocalBlockHead(height, block.BlockHash)
 	if err != nil {
 		this.wm.Log.Errorf("save local block scanned failed, err=%v", err)
 		return err
@@ -149,7 +149,7 @@ func (this *VCCBlockScanner) ScanTxMemPool() error {
 }
 
 func (this *VCCBlockScanner) RescanFailedTransactions() error {
-	unscannedTxs, err := this.wm.GetAllUnscannedTransactions()
+	unscannedTxs, err := this.GetUnscanRecords()
 	if err != nil {
 		this.wm.Log.Errorf("GetAllUnscannedTransactions failed. err=%v", err)
 		return err
@@ -167,10 +167,8 @@ func (this *VCCBlockScanner) RescanFailedTransactions() error {
 		return err
 	}
 
-	err = this.wm.DeleteUnscannedTransactions(unscannedTxs)
-	if err != nil {
-		this.wm.Log.Errorf("batch extract transactions failed, err=%v", err)
-		return err
+	for _, record := range unscannedTxs {
+		this.DeleteUnscanRecordByID(record.ID)
 	}
 	return nil
 }
@@ -234,17 +232,13 @@ func (this *VCCBlockScanner) ScanBlockTask() {
 			//}
 
 			//查询本地分叉的区块
-			forkBlock, _ := this.wm.RecoverBlockHeader(previousHeight)
+			forkBlock, _ := this.GetLocalBlock(previousHeight)
 
-			err = this.wm.DeleteUnscannedTransactionByHeight(previousHeight)
-			if err != nil {
-				this.wm.Log.Errorf("DeleteUnscannedTransaction failed, height=%v, err=%v", previousHeight, err)
-				break
-			}
+			this.DeleteUnscanRecord(previousHeight)
 
 			curBlockHeight = previousHeight - 1 //倒退2个区块重新扫描
 
-			curBlock, err = this.wm.RecoverBlockHeader(curBlockHeight)
+			curBlock, err = this.GetLocalBlock(curBlockHeight)
 			if err != nil && err != storm.ErrNotFound {
 				this.wm.Log.Errorf("RecoverBlockHeader failed, block number=%v, err=%v", curBlockHeight, err)
 				break
@@ -258,7 +252,7 @@ func (this *VCCBlockScanner) ScanBlockTask() {
 			curBlockHash = curBlock.BlockHash
 			this.wm.Log.Infof("rescan block on height:%v, hash:%v.", curBlockHeight, curBlockHash)
 
-			err = this.wm.SaveLocalBlockScanned(curBlock.BlockHeight, curBlock.BlockHash)
+			err = this.SaveLocalBlockHead(curBlock.BlockHeight, curBlock.BlockHash)
 			if err != nil {
 				this.wm.Log.Errorf("save local block unscaned failed, err=%v", err)
 				break
@@ -279,10 +273,8 @@ func (this *VCCBlockScanner) ScanBlockTask() {
 				break
 			}
 
-			err = this.wm.SaveBlockHeader2(curBlock)
-			if err != nil {
-				this.wm.Log.Errorf("SaveBlockHeader2 failed")
-			}
+			this.SaveLocalBlockHead(curBlock.BlockHeight, curBlock.BlockHash)
+			this.SaveLocalBlock(curBlock)
 
 			isFork = false
 
@@ -315,7 +307,7 @@ func (this *VCCBlockScanner) newExtractDataNotify(height uint64, tx *ethereum.Bl
 					//err = this.SaveUnscanRecord(unscanRecord)
 					reason := fmt.Sprintf("BlockExtractDataNotify account[%v] failed, err = %v", key, err)
 					this.wm.Log.Errorf(reason)
-					err = this.wm.SaveUnscannedTransaction(tx, reason)
+					err = this.SaveUnscannedTransaction(tx, reason)
 					if err != nil {
 						this.wm.Log.Errorf("block height: %d, save unscan record failed. unexpected error: %v", height, err.Error())
 						return err
@@ -963,7 +955,7 @@ func (this *VCCBlockScanner) TransactionScanning(tx *ethereum.BlockTransaction) 
 		this.wm.Log.Errorf("UpdateTxByReceipt failed, err=%v", err)
 		return nil, err
 	} else if err != nil && strings.Index(err.Error(), "result type is Null") != -1 {
-		err = this.wm.SaveUnscannedTransaction(tx, "get tx receipt reply with null result")
+		err = this.SaveUnscannedTransaction(tx, "get tx receipt reply with null result")
 		if err != nil {
 			this.wm.Log.Errorf("block height: %d, save unscan record failed. unexpected error: %v", tx.BlockHeight, err)
 			return nil, err
@@ -1299,7 +1291,7 @@ func (this *VCCBlockScanner) GetScannedBlockHeader() (*openwallet.BlockHeader, e
 		err         error
 	)
 
-	blockHeight, hash, err = this.wm.GetLocalNewBlock()
+	blockHeight, hash, err = this.GetLocalBlockHead()
 	if err != nil {
 		this.wm.Log.Errorf("get local new block failed, err=%v", err)
 		return nil, err
@@ -1360,4 +1352,15 @@ func (this *VCCBlockScanner) GetGlobalMaxBlockHeight() uint64 {
 		return 0
 	}
 	return maxBlockHeight
+}
+
+func (this *VCCBlockScanner) SaveUnscannedTransaction(tx *ethereum.BlockTransaction, reason string) error {
+
+	unscannedRecord := &openwallet.UnscanRecord{
+		TxID:        tx.Hash,
+		BlockHeight: tx.BlockHeight,
+		Reason:      reason,
+		Symbol:      this.wm.Symbol(),
+	}
+	return this.SaveUnscanRecord(unscannedRecord)
 }
